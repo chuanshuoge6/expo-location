@@ -77,38 +77,6 @@ export default function App() {
     }
   }
 
-  AccordionHeader = (item, expanded) => {
-    return (
-      <View style={{
-        flexDirection: "row",
-        padding: 10,
-        justifyContent: "space-between",
-        alignItems: "center",
-        backgroundColor: "#A9DAD6"
-      }}>
-        <Text style={{ fontWeight: "600" }}>
-          {" "}{item.title}
-        </Text>
-        {expanded
-          ? <Icon style={{ fontSize: 18 }} name="remove-circle" />
-          : <Icon style={{ fontSize: 18 }} name="add-circle" />}
-      </View>
-    );
-  }
-  AccordionContent = (item) => {
-    return (
-      <Text
-        style={{
-          backgroundColor: "#A9DAD6",
-          padding: 10,
-          fontStyle: "italic",
-        }}
-      >
-        {item.content}
-      </Text>
-    );
-  }
-
   search_address = async () => {
     if (background_location) {
       const _address = await Location.reverseGeocodeAsync(background_location.coords)
@@ -136,25 +104,45 @@ export default function App() {
   return (
     <Container style={{ backgroundColor: '#1C2833' }}>
       <Content style={{ marginTop: 25 }}>
-        <Accordion dataArray={[{
-          title: 'Realtime GPS',
-          content: 'Accuracy: ' + acc + ' Meters\n' +
-            'Altitude: ' + altitude + ' Meters\n' +
-            'Heading: ' + heading + ' Degree\n' +
-            'Latitude: ' + latitude + ' Degree\n' +
-            'Longitude: ' + longitude + ' Degree\n' +
-            'Speed: ' + speed + ' M/S\n' +
-            'Time: ' + time
-        }, {
-          title: 'Address (update location first)',
-          content: address ?
-            address.name + ' ' + address.street + ' ' + address.city + '\n' +
-            address.region + ' ' + address.country + ' ' + address.postalCode
-            : 'Waiting for GPS location'
-        }]}
-          expanded={0}
-          renderHeader={AccordionHeader}
-          renderContent={AccordionContent} />
+        <Card style={{ backgroundColor: '#1C2833' }}>
+          <CardItem header bordered style={{ backgroundColor: "#1C2833" }}>
+            <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between' }}>
+              <H3 style={{ color: '#D0D3D4' }}>Realtime GPS</H3>
+              <H3 style={{ color: "#D0D3D4" }}>+</H3>
+            </View>
+          </CardItem>
+          <CardItem bordered style={{ backgroundColor: '#1C2833' }}>
+            <Text style={{ color: "#D0D3D4", fontStyle: 'italic' }}>
+              Accuracy: {acc} Meters{'\n'}
+              Altitude: {altitude} Meters{'\n'}
+              Heading: {heading} Degree{'\n'}
+              Latitude: {latitude} Degree{'\n'}
+              Longitude: {longitude} Degree{'\n'}
+              Speed: {speed} M/S{'\n'}
+              Time: {time}
+            </Text>
+            <Button light small bordered icon style={{ position: 'absolute', right: 10, top: 10 }}>
+              <Icon name='copy'></Icon>
+            </Button>
+          </CardItem>
+          <CardItem header bordered style={{ backgroundColor: '#1C2833' }}>
+            <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between' }}>
+              <H3 style={{ color: '#D0D3D4' }}>Address (update location first)</H3>
+              <H3 style={{ color: '#D0D3D4' }}>+</H3>
+            </View>
+          </CardItem>
+          <CardItem style={{ backgroundColor: '#1C2833' }}>
+            {address ?
+              <Text style={{ color: '#D0D3D4' }}>
+                {address.name}  {address.street} {'\n'}
+                {address.city} {address.region} {address.country}  {address.postalCode}
+              </Text>
+              : <Text style={{ color: '#D0D3D4' }}>Waiting for GPS location</Text>}
+          </CardItem>
+          <Button light small bordered icon style={{ position: 'absolute', right: 10, top: 10 }}>
+            <Icon name='copy'></Icon>
+          </Button>
+        </Card>
 
         <View style={{ flexDirection: 'row', justifyContent: "space-around", marginTop: 10 }}>
           <Button small style={{ width: 150, justifyContent: "center" }} onPress={() => setupdatePeriod(1000)}>
