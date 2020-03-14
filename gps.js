@@ -16,6 +16,8 @@ import useInterval from 'react-useinterval'
 import openMap from 'react-native-open-maps'
 import { connect } from 'react-redux';
 import { addLocations, deleteLocations } from './Redux/locationActions'
+import * as MediaLibrary from 'expo-media-library'
+import * as FileSystem from 'expo-file-system'
 
 const LOCATION_TASK_NAME = 'background-location-task';
 let background_location = null
@@ -35,6 +37,7 @@ function GPS(props) {
     const [card_collapse1, setcard_collapse1] = useState(false)
     const [card_collapse2, setcard_collapse2] = useState(false)
     const [record, setrecord] = useState(false)
+    const [storagePermission, setstoragePermission] = useState('denied')
 
     useEffect(() => {
         initializeApp()
@@ -44,6 +47,9 @@ function GPS(props) {
     initializeApp = async () => {
         const { status } = await Location.requestPermissionsAsync()
         setpermission_status(status)
+
+        const grantStorage = await MediaLibrary.requestPermissionsAsync()
+        setstoragePermission(grantStorage.status)
 
         await Font.loadAsync({
             Roboto: require("native-base/Fonts/Roboto.ttf"),
@@ -116,9 +122,23 @@ function GPS(props) {
         alert(text)
     }
 
-    if (permission_status !== 'granted') {
+    export_locations = async () => {
+        let text = ''
+        props.locations_store.map(item => {
+            text = text + item.time + ',' + item.latitude.toString() + ',' + item.longitude.toString() + '\n'
+        })
+
+        const fileUri = FileSystem.cacheDirectory + "location.txt";
+        await FileSystem.writeAsStringAsync(fileUri, text, { encoding: FileSystem.EncodingType.UTF8 });
+        const asset = await MediaLibrary.createAssetAsync(fileUri)
+        await MediaLibrary.createAlbumAsync("Download", asset, false)
+
+        alert('file exported to download folder')
+    }
+
+    if (permission_status !== 'granted' || storagePermission !== 'granted') {
         <Container style={{ backgroundColor: '#1C2833' }}>
-            <Text>App needs location permission granted</Text>
+            <Text>App needs location and storage permission granted</Text>
         </Container>
     }
 
@@ -216,6 +236,13 @@ function GPS(props) {
                         onPress={() => display_record()}>
                         <Text>Show Record</Text>
                     </Button>
+                </View>
+                <View style={{ flexDirection: 'row', justifyContent: "space-around", marginTop: 10 }}>
+                    <Button small style={{ width: 150, justifyContent: "center" }}
+                        onPress={() => { export_locations() }}>
+                        <Text>Export Locations</Text>
+                    </Button>
+
                 </View>
             </Content>
         </Container>
